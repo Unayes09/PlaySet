@@ -9,6 +9,9 @@ const ProductSchema = new mongoose.Schema(
     actualPrice: { type: Number, required: true },
     offerPrice: { type: Number },
     stock: { type: Number, required: true },
+    category: { type: String, enum: ['Mini bricks', 'Lego', 'Puzzle'], default: 'Mini bricks' },
+    isNewProduct: { type: Boolean, default: false },
+    isFeatured: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

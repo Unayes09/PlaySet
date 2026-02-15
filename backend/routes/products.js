@@ -6,19 +6,43 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const pageParam = req.query.page;
+    const { page: pageParam, category, q, isNew, isNewProduct, isFeatured } = req.query;
+    const query = {};
+    if (category) query.category = category;
+    if (q) {
+      const rx = new RegExp(q, 'i');
+      query.$or = [{ name: rx }, { description: rx }];
+    }
+    const newParam = isNewProduct ?? isNew;
+    if (newParam != null) {
+      const flag = String(newParam) === 'true';
+      if (flag) {
+        query.$and = [...(query.$and || []), { $or: [{ isNewProduct: true }, { isNew: true }] }];
+      } else {
+        query.$and = [
+          ...(query.$and || []),
+          {
+            $and: [
+              { $or: [{ isNewProduct: { $exists: false } }, { isNewProduct: false }] },
+              { $or: [{ isNew: { $exists: false } }, { isNew: false }] },
+            ],
+          },
+        ];
+      }
+    }
+    if (isFeatured != null) query.isFeatured = String(isFeatured) === 'true';
     if (pageParam) {
       const page = Math.max(parseInt(pageParam, 10) || 1, 1);
       const perPage = 10;
-      const totalProducts = await Product.countDocuments();
+      const totalProducts = await Product.countDocuments(query);
       const totalPages = Math.max(Math.ceil(totalProducts / perPage), 1);
-      const products = await Product.find()
+      const products = await Product.find(query)
         .sort({ createdAt: -1 })
         .skip((page - 1) * perPage)
         .limit(perPage);
       return res.json({ totalPages, totalProducts, products });
     }
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find(query).sort({ createdAt: -1 });
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -35,6 +59,10 @@ router.post('/', requireAuth, async (req, res) => {
       actualPrice,
       offerPrice,
       stock,
+      category,
+      isNew = false,
+      isNewProduct = false,
+      isFeatured = false,
     } = req.body;
 
     if (!name || actualPrice == null || stock == null) {
@@ -49,6 +77,9 @@ router.post('/', requireAuth, async (req, res) => {
       actualPrice,
       offerPrice,
       stock,
+      category,
+      isNewProduct: !!isNewProduct || !!isNew,
+      isFeatured,
     });
     res.status(201).json(product);
   } catch (err) {

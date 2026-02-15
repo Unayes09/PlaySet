@@ -5,22 +5,6 @@ const Admin = require('../models/Admin');
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: 'username and password are required' });
-
-    const exists = await Admin.countDocuments();
-    if (exists > 0) return res.status(403).json({ error: 'Admin already registered' });
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    const admin = await Admin.create({ username, passwordHash });
-    res.status(201).json({ id: admin._id, username: admin.username });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;

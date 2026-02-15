@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion as Motion } from 'framer-motion';
-import { getCart, removeFromCart, clearCart } from '../utils/cart.js';
+import { getCart, removeFromCart, clearCart, setCart } from '../utils/cart.js';
 import { apiPost } from '../api/client.js';
 
 export default function Cart() {
@@ -16,6 +16,21 @@ export default function Cart() {
 
   function remove(id) { removeFromCart(id); setItems(getCart()); }
   function reset() { clearCart(); setItems([]); }
+
+  function dec(id) {
+    setItems((prev) => {
+      const updated = prev.map((i) => i.id === id ? { ...i, qty: Math.max(1, Number(i.qty || 1) - 1) } : i);
+      setCart(updated);
+      return updated;
+    });
+  }
+  function inc(id) {
+    setItems((prev) => {
+      const updated = prev.map((i) => i.id === id ? { ...i, qty: Math.min(99, Number(i.qty || 1) + 1) } : i);
+      setCart(updated);
+      return updated;
+    });
+  }
 
   async function checkout() {
     try {
@@ -45,7 +60,11 @@ export default function Cart() {
               <img className="w-[120px] h-full object-cover" src={i.imageUrl} alt={i.name} />
               <div className="p-3">
                 <h4 className="font-semibold">{i.name}</h4>
-                <p>Qty: {i.qty}</p>
+                <div className="inline-flex items-center rounded-lg border border-black/10 overflow-hidden mt-2">
+                  <button className="px-3 py-2 bg-gray-100 text-gray-900" onClick={() => dec(i.id)} aria-label="Decrease quantity">-</button>
+                  <div className="px-4 py-2 min-w-10 text-center">{i.qty}</div>
+                  <button className="px-3 py-2 bg-gray-100 text-gray-900" onClick={() => inc(i.id)} aria-label="Increase quantity">+</button>
+                </div>
                 <p>৳{i.price}</p>
                 <button className="bg-gray-200 text-gray-900 rounded-lg px-3 py-2 mt-2" onClick={() => remove(i.id)}>Remove</button>
               </div>

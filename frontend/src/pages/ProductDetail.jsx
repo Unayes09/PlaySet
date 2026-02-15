@@ -19,6 +19,7 @@ export default function ProductDetail() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [addSuccessOpen, setAddSuccessOpen] = useState(false);
   const [orderError, setOrderError] = useState(null);
+  const [qty, setQty] = useState(1);
   const product = useMemo(() => products.find((p) => (p._id || '') === id), [products, id]);
 
   useEffect(() => {
@@ -42,8 +43,8 @@ export default function ProductDetail() {
         customer: cust,
         productIds: [product._id],
         productNames: [product.name],
-        quantities: [1],
-        priceTotal: Number(price),
+        quantities: [qty],
+        priceTotal: Number(price) * Number(qty),
         status: 'ordered',
       };
       await apiPost('/api/orders', orderBody);
@@ -55,8 +56,16 @@ export default function ProductDetail() {
   }
 
   function addCart() {
-    addToCart({ id: product._id, name: product.name, price, imageUrl: product.imageUrls?.[0], qty: 1 });
+    addToCart({ id: product._id, name: product.name, price, imageUrl: product.imageUrls?.[0], qty });
     setAddSuccessOpen(true);
+  }
+
+  function decQty() {
+    setQty((q) => Math.max(1, q - 1));
+  }
+  function incQty() {
+    const max = Number(product?.stock) > 0 ? Number(product.stock) : 99;
+    setQty((q) => Math.min(max, q + 1));
   }
 
   return (
@@ -142,9 +151,14 @@ export default function ProductDetail() {
             </span>
           )}
         </div>
-        <div className="flex gap-3 mt-3">
-          <button className="bg-pink-500 hover:bg-pink-600 text-white rounded-lg px-4 py-2" onClick={() => setBuyOpen(true)}>Buy now</button>
-          <button className="bg-gray-200 text-gray-900 rounded-lg px-4 py-2" onClick={addCart}>Add to Cart</button>
+        <div className="flex items-center gap-3 mt-3">
+          <div className="inline-flex items-center rounded-lg border border-black/10 overflow-hidden">
+            <button className="px-3 py-2 bg-gray-100 text-gray-900" onClick={decQty} aria-label="Decrease quantity">-</button>
+            <div className="px-4 py-2 min-w-10 text-center">{qty}</div>
+            <button className="px-3 py-2 bg-gray-100 text-gray-900" onClick={incQty} aria-label="Increase quantity">+</button>
+          </div>
+          <button className="bg-pink-500 hover:bg-pink-600 text-white rounded-lg px-4 py-2 disabled:opacity-50" onClick={() => setBuyOpen(true)} disabled={product.stock <= 0}>Buy now</button>
+          <button className="bg-gray-200 text-gray-900 rounded-lg px-4 py-2 disabled:opacity-50" onClick={addCart} disabled={product.stock <= 0}>Add to Cart</button>
         </div>
       </div>
 
@@ -176,7 +190,7 @@ export default function ProductDetail() {
                 <button className="rounded-full px-3 py-1 bg-gray-200 text-gray-900" onClick={() => setBuyOpen(false)}>Close</button>
               </div>
               <div className="text-gray-700 mt-1">{product.name}</div>
-              <div className="font-semibold mt-1">Total: ৳{price}</div>
+              <div className="font-semibold mt-1">Total: ৳{Number(price) * Number(qty)}</div>
               {orderError && <p className="text-red-600 mt-2">{orderError}</p>}
               <div className="grid gap-3 my-3">
                 <input className="px-3 py-2 rounded-lg border border-gray-300" placeholder="Phone*" value={cust.phone} onChange={(e) => setCust({ ...cust, phone: e.target.value })} />

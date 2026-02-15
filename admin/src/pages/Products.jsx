@@ -9,7 +9,7 @@ export default function Products() {
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ totalPages: 1, totalProducts: 0, products: [] })
 
-  const [form, setForm] = useState({ name: '', actualPrice: '', offerPrice: '', stock: '', imageUrls: '', videoUrls: '', description: '' })
+  const [form, setForm] = useState({ name: '', actualPrice: '', offerPrice: '', stock: '', imageUrls: '', videoUrls: '', description: '', isNewProduct: false, isFeatured: false, category: 'Mini bricks' })
   const [imageFiles, setImageFiles] = useState([])
   const [videoFiles, setVideoFiles] = useState([])
   const [editingId, setEditingId] = useState(null)
@@ -87,9 +87,13 @@ export default function Products() {
         imageUrls: combineUploadedFirst(uploaded.imageUrls, parseList(form.imageUrls)),
         videoUrls: combineUploadedFirst(uploaded.videoUrls, parseList(form.videoUrls)),
         description: form.description,
+        isNewProduct: !!form.isNewProduct,
+        isFeatured: !!form.isFeatured,
+        category: form.category,
       }
+      console.log(body)
       await apiPost('/api/products', body)
-      setForm({ name: '', actualPrice: '', offerPrice: '', stock: '', imageUrls: '', videoUrls: '', description: '' })
+      setForm({ name: '', actualPrice: '', offerPrice: '', stock: '', imageUrls: '', videoUrls: '', description: '', isNewProduct: false, isFeatured: false, category: 'Mini bricks' })
       setImageFiles([])
       setVideoFiles([])
       load(page)
@@ -107,6 +111,9 @@ export default function Products() {
       imageUrls: (p.imageUrls || []).join(', '),
       videoUrls: (p.videoUrls || []).join(', '),
       description: p.description || '',
+      isNewProduct: !!p.isNewProduct || !!p.isNew,
+      isFeatured: !!p.isFeatured,
+      category: p.category || 'Mini bricks',
     })
     setEditImageFiles([])
     setEditVideoFiles([])
@@ -132,6 +139,9 @@ export default function Products() {
         imageUrls: combineUploadedFirst(uploaded.imageUrls, parseList(editForm.imageUrls)),
         videoUrls: combineUploadedFirst(uploaded.videoUrls, parseList(editForm.videoUrls)),
         description: editForm.description,
+        isNewProduct: !!editForm.isNewProduct,
+        isFeatured: !!editForm.isFeatured,
+        category: editForm.category,
       }
       await apiPut(`/api/products/${id}`, body)
       setEditingId(null)
@@ -152,6 +162,24 @@ export default function Products() {
           <input className="px-3 py-2 rounded-md border border-gray-300" placeholder="Actual Price" value={form.actualPrice} onChange={(e) => setForm({ ...form, actualPrice: e.target.value })} />
           <input className="px-3 py-2 rounded-md border border-gray-300" placeholder="Offer Price" value={form.offerPrice} onChange={(e) => setForm({ ...form, offerPrice: e.target.value })} />
           <input className="px-3 py-2 rounded-md border border-gray-300" placeholder="Stock" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+        </div>
+        <div className="flex items-center gap-3">
+          <label className="text-sm">Category</label>
+          <select className="px-3 py-2 rounded-md border border-gray-300" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+            <option value="Mini bricks">Mini bricks</option>
+            <option value="Lego">Lego</option>
+            <option value="Puzzle">Puzzle</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-4">
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!form.isNewProduct} onChange={(e) => setForm({ ...form, isNewProduct: e.target.checked })} />
+            New Product
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />
+            Featured Product
+          </label>
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <div className="grid gap-2">
@@ -299,6 +327,24 @@ export default function Products() {
                           <label className="text-sm">Upload Videos</label>
                           <input className="px-3 py-2 rounded-md border border-gray-300 w-full" type="file" accept="video/*" multiple onChange={(e) => setEditVideoFiles(Array.from(e.target.files || []))} />
                         </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm">Category</label>
+                        <select className="px-3 py-2 rounded-md border border-gray-300" value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
+                          <option value="Mini bricks">Mini bricks</option>
+                          <option value="Lego">Lego</option>
+                          <option value="Puzzle">Puzzle</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center gap-4 mt-1">
+                        <label className="inline-flex items-center gap-2 text-sm">
+                          <input type="checkbox" checked={!!editForm.isNewProduct} onChange={(e) => setEditForm({ ...editForm, isNewProduct: e.target.checked })} />
+                          New Product
+                        </label>
+                        <label className="inline-flex items-center gap-2 text-sm">
+                          <input type="checkbox" checked={!!editForm.isFeatured} onChange={(e) => setEditForm({ ...editForm, isFeatured: e.target.checked })} />
+                          Featured Product
+                        </label>
                       </div>
                       <input className="px-3 py-2 rounded-md border border-gray-300 w-full" placeholder="Image URLs (comma-separated)" value={editForm.imageUrls} onChange={(e) => setEditForm({ ...editForm, imageUrls: e.target.value })} />
                       <input className="px-3 py-2 rounded-md border border-gray-300 w-full" placeholder="Video URLs (comma-separated)" value={editForm.videoUrls} onChange={(e) => setEditForm({ ...editForm, videoUrls: e.target.value })} />
