@@ -17,11 +17,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.use(async (req, res, next) => {
   try {
+    console.log('[mongo] getDb for', req.method, req.url);
     req.db = await getDb();
     next();
   } catch (err) {
+    console.error('[mongo] failed to getDb for', req.method, req.url, '-', err?.message || err);
     next(err);
   }
 });
@@ -33,10 +39,6 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/uploads', uploadsRoutes);
 
 app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
 
 const server = createServer(app);
 
