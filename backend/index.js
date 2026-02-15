@@ -33,9 +33,9 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-import { httpServerHandler } from 'cloudflare:node';
-export default httpServerHandler(app);
+// import { httpServerHandler } from 'cloudflare:node';
+// export default httpServerHandler(app);
