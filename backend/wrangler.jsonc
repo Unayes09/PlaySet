@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "playset-backend",
+  "name": "playset",
   "main": "index.js", // Change this to index.js if your entry file name is different
   "compatibility_date": "2026-02-15",
   "compatibility_flags": [
