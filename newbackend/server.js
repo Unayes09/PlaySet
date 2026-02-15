@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { createServer } from 'node:http';
 import { httpServerHandler } from 'cloudflare:node';
 import { getDb } from './db.js';
 import adminRoutes from './routes/admin.js';
@@ -37,5 +38,6 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-export default httpServerHandler(app);
+const server = createServer(app);
 
+export default httpServerHandler(server);
