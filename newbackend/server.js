@@ -40,6 +40,12 @@ app.use('/api/uploads', uploadsRoutes);
 
 app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
 
+app.use((err, req, res, next) => {
+  console.error('[error]', err?.message || err, err?.stack);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: err?.message || 'Internal server error' });
+});
+
 const server = createServer(app);
 
 export default httpServerHandler(server);
