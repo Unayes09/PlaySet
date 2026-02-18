@@ -57,7 +57,7 @@ export default function Cart() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((i) => (
             <div key={i.id} className="grid grid-cols-[120px_1fr] gap-3 bg-white border border-black/5 rounded-xl overflow-hidden">
-              <img className="w-[120px] h-full object-cover" src={i.imageUrl} alt={i.name} />
+              <img className="w-[120px] h-[120px] object-contain bg-gray-100" src={i.imageUrl} alt={i.name} />
               <div className="p-3">
                 <h4 className="font-semibold">{i.name}</h4>
                 <div className="inline-flex items-center rounded-lg border border-black/10 overflow-hidden mt-2">

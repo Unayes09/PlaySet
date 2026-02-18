@@ -12,7 +12,7 @@ export default function ProductCard({ product }) {
       {label && <div className="absolute top-2 left-2 bg-pink-500 text-white text-xs rounded-full px-2 py-1 opacity-0 group-hover:opacity-100 transition shadow">{label}</div>}
       <div className="h-[180px] bg-gray-100 flex items-center justify-center">
         {product.imageUrls?.[0] ? (
-          <img className="w-full h-full object-cover" src={product.imageUrls[0]} alt={product.name} />
+          <img className="max-w-full max-h-full object-contain" src={product.imageUrls[0]} alt={product.name} />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
         )}

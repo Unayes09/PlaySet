@@ -71,16 +71,28 @@ export default function ProductDetail() {
   return (
     <div className="max-w-[1100px] mx-auto grid md:grid-cols-2 grid-cols-1 gap-5 px-3 my-5">
       <div className="rounded-2xl p-3">
-        <div className="rounded-xl overflow-hidden h-[320px] flex items-center justify-center">
+        <div className="rounded-xl overflow-hidden h-[320px] flex items-center justify-center bg-gray-100">
           {product.imageUrls?.[displayImageIdx] ? (
-            <img className="w-full h-full object-cover" src={product.imageUrls[displayImageIdx]} alt={product.name} />
+            <img
+              className="max-w-full max-h-full object-contain"
+              src={product.imageUrls[displayImageIdx]}
+              alt={product.name}
+            />
           ) : <div className="w-full h-full" />}
         </div>
         {Array.isArray(product.imageUrls) && product.imageUrls.length > 1 && (
           <div className="flex gap-2 mt-3 overflow-x-auto">
             {product.imageUrls.map((url, idx) => (
-              <button key={idx} className={`w-16 h-16 rounded-lg overflow-hidden border ${displayImageIdx === idx ? 'border-pink-500' : 'border-black/10'}`} onClick={() => setActiveImageIdx(idx)}>
-                <img className="w-full h-full object-cover" src={url} alt={product.name + ' ' + (idx + 1)} />
+              <button
+                key={idx}
+                className={`w-16 h-16 rounded-lg overflow-hidden border bg-gray-100 ${displayImageIdx === idx ? 'border-pink-500' : 'border-black/10'}`}
+                onClick={() => setActiveImageIdx(idx)}
+              >
+                <img
+                  className="w-full h-full object-contain"
+                  src={url}
+                  alt={product.name + ' ' + (idx + 1)}
+                />
               </button>
             ))}
           </div>
