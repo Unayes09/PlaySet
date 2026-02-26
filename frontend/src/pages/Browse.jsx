@@ -64,7 +64,14 @@ export default function Browse() {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto px-3 my-5">
+    <div className="min-h-screen bg-slate-50 relative pb-10">
+      {/* Intuitive Grid Background */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+
+      <div className="max-w-[1100px] mx-auto px-3 pt-5 relative">
       <h2 className="text-2xl font-bold mb-3">Browse Products</h2>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 inline-flex items-center gap-2">
@@ -108,14 +115,17 @@ export default function Browse() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {products.length ? products.map((p) => (
-            <ProductCard key={p._id} product={p} />
+        <div className="flex flex-wrap gap-4 mt-4">
+          {products.length ? products.map((p, idx) => (
+            <div key={p._id} className="w-full sm:w-[calc(50%-8px)] md:w-[calc(33.33%-11px)] lg:w-[calc(33.33%-11px)] min-h-[320px]">
+              <ProductCard product={p} index={products.length > 1 ? idx : undefined} />
+            </div>
           )) : (
-            <div className="col-span-full text-center bg-white border border-dashed border-gray-300 p-6 rounded-xl">No products found</div>
+            <div className="w-full text-center bg-white border border-dashed border-gray-300 p-6 rounded-xl">No products found</div>
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

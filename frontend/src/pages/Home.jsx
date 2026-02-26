@@ -42,7 +42,13 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-80px)]">
+    <div className="flex flex-col min-h-[calc(100vh-80px)] bg-slate-50 relative">
+      {/* Intuitive Grid Background */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+      
       <HeroSlider />
       <section id="products" className="max-w-[1200px] mx-auto px-3">
         <div className="text-center my-5">
@@ -73,9 +79,11 @@ export default function Home() {
         )}
 
         {!loadingNew && !errorNew && newProducts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {newProducts.map((p) => (
-              <ProductCard key={p._id || p.name} product={p} />
+          <div className="flex flex-wrap gap-4">
+            {newProducts.map((p, idx) => (
+              <div key={p._id || p.name} className="w-full sm:w-[calc(50%-8px)] md:w-[calc(33.33%-11px)] lg:w-[calc(25%-12px)] min-h-[320px]">
+                <ProductCard product={p} index={newProducts.length > 1 ? idx : undefined} />
+              </div>
             ))}
           </div>
         )}
@@ -106,9 +114,11 @@ export default function Home() {
           </Motion.div>
         )}
         {!loadingFeatured && !errorFeatured && featuredProducts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {featuredProducts.map((p) => (
-              <ProductCard key={p._id || p.name} product={p} />
+          <div className="flex flex-wrap gap-4">
+            {featuredProducts.map((p, idx) => (
+              <div key={p._id || p.name} className="w-full sm:w-[calc(50%-8px)] md:w-[calc(33.33%-11px)] lg:w-[calc(25%-12px)] min-h-[320px]">
+                <ProductCard product={p} index={featuredProducts.length > 1 ? idx : undefined} />
+              </div>
             ))}
           </div>
         )}

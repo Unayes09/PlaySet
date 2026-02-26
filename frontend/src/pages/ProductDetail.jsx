@@ -13,7 +13,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [buyOpen, setBuyOpen] = useState(false);
-  const [cust, setCust] = useState({ phone: '', name: '', address: '', additionalInfo: '', email: '' });
+  const [cust, setCust] = useState({ phone: '', name: '', address: '', additionalInfo: '', email: '', area: 'Sylhet' });
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -30,11 +30,42 @@ export default function ProductDetail() {
 
   
 
-  if (loading) return <div className="detail-loading">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center relative overflow-hidden">
+        {/* Background Grid for consistency */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+        
+        <Motion.div 
+          className="relative"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        >
+          {/* A brick-like loader or spinner */}
+          <div className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full shadow-sm" />
+          <div className="absolute inset-0 flex items-center justify-center">
+             <div className="w-4 h-4 bg-pink-500 rounded-sm animate-pulse" />
+          </div>
+        </Motion.div>
+        
+        <Motion.p 
+          className="mt-6 text-gray-500 font-medium tracking-wide uppercase text-xs"
+          initial={{ opacity: 0.5 }}
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          Building your set...
+        </Motion.p>
+      </div>
+    );
+  }
   if (error) return <div className="detail-error">{error}</div>;
   if (!product) return <div className="detail-error">Product not found</div>;
 
   const price = product.offerPrice ?? product.actualPrice;
+  const deliveryFee = cust.area === 'Sylhet' ? 0 : 110;
+  const totalPrice = Number(price) * Number(qty) + deliveryFee;
   const displayImageIdx = (Array.isArray(product.imageUrls) && product.imageUrls[activeImageIdx]) ? activeImageIdx : 0;
 
   async function instantBuy() {
@@ -44,7 +75,7 @@ export default function ProductDetail() {
         productIds: [product._id],
         productNames: [product.name],
         quantities: [qty],
-        priceTotal: Number(price) * Number(qty),
+        priceTotal: totalPrice,
         status: 'ordered',
       };
       await apiPost('/api/orders', orderBody);
@@ -69,7 +100,14 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto grid md:grid-cols-2 grid-cols-1 gap-5 px-3 my-5">
+    <div className="min-h-screen bg-slate-50 relative pb-10">
+      {/* Intuitive Grid Background */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+
+      <div className="max-w-[1100px] mx-auto grid md:grid-cols-2 grid-cols-1 gap-5 px-3 pt-5 relative">
       <div className="rounded-2xl p-3">
         <div className="rounded-xl overflow-hidden h-[320px] flex items-center justify-center bg-gray-100">
           {product.imageUrls?.[displayImageIdx] ? (
@@ -141,7 +179,9 @@ export default function ProductDetail() {
           <p className="text-gray-700 mt-3">No description provided.</p>
         )}
       </div>
-      <div className="rounded-2xl p-4">
+      <div className="rounded-2xl p-4 sticky top-24 self-start bg-white/80 border border-black/5 shadow-sm"
+           style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h1>
         <div className="flex items-baseline gap-3">
           {product.offerPrice != null ? (
             <>
@@ -202,21 +242,41 @@ export default function ProductDetail() {
                 <button className="rounded-full px-3 py-1 bg-gray-200 text-gray-900" onClick={() => setBuyOpen(false)}>Close</button>
               </div>
               <div className="text-gray-700 mt-1">{product.name}</div>
-              <div className="font-semibold mt-1">Total: ৳{Number(price) * Number(qty)}</div>
+              <div className="font-semibold mt-1">Total: ৳{totalPrice}</div>
               {orderError && <p className="text-red-600 mt-2">{orderError}</p>}
               <div className="grid gap-3 my-3">
+                <div className="flex gap-2 p-1 bg-gray-100 rounded-xl border border-black/5">
+                  <button 
+                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${cust.area === 'Sylhet' ? 'bg-white text-pink-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setCust({ ...cust, area: 'Sylhet' })}
+                  >
+                    Sylhet (Free)
+                  </button>
+                  <button 
+                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${cust.area !== 'Sylhet' ? 'bg-white text-pink-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setCust({ ...cust, area: 'Non-Sylhet' })}
+                  >
+                    Outside Sylhet (+৳110)
+                  </button>
+                </div>
                 <input className="px-3 py-2 rounded-lg border border-gray-300" placeholder="Phone*" value={cust.phone} onChange={(e) => setCust({ ...cust, phone: e.target.value })} />
                 <input className="px-3 py-2 rounded-lg border border-gray-300" placeholder="Name*" value={cust.name} onChange={(e) => setCust({ ...cust, name: e.target.value })} />
                 <input className="px-3 py-2 rounded-lg border border-gray-300" placeholder="Address*" value={cust.address} onChange={(e) => setCust({ ...cust, address: e.target.value })} />
                 <input className="px-3 py-2 rounded-lg border border-gray-300" placeholder="Additional info" value={cust.additionalInfo} onChange={(e) => setCust({ ...cust, additionalInfo: e.target.value })} />
-                <input className="px-3 py-2 rounded-lg border border-gray-300" placeholder="Email" value={cust.email} onChange={(e) => setCust({ ...cust, email: e.target.value })} />
+                <input className="px-3 py-2 rounded-lg border border-gray-300" placeholder="Email*" value={cust.email} onChange={(e) => setCust({ ...cust, email: e.target.value })} />
               </div>
               <div className="flex gap-3">
-                <button className="bg-pink-500 hover:bg-pink-600 text-white rounded-lg px-4 py-2" onClick={() => setConfirmOpen(true)}>Place Order</button>
+                <button 
+                  className="bg-pink-500 hover:bg-pink-600 text-white rounded-lg px-4 py-2 disabled:opacity-50" 
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={!cust.phone || !cust.name || !cust.address || !cust.email}
+                >
+                  Place Order
+                </button>
                 <button className="bg-gray-200 text-gray-900 rounded-lg px-4 py-2" onClick={() => setBuyOpen(false)}>Cancel</button>
               </div>
               <p className="text-gray-600 mt-2">Payment: Cash on Delivery</p>
-              <p className="text-gray-600">Delivery: Sylhet ~2 days (free), outside Sylhet ~7 days (৳150)</p>
+              <p className="text-gray-600">Delivery: Sylhet (free), outside Sylhet (৳110)</p>
             </div>
           </Motion.div>
         </Motion.div>
@@ -228,7 +288,7 @@ export default function ProductDetail() {
           <Motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0.95 }} animate={{ scale: 1 }}>
             <div className="bg-white rounded-2xl p-4 w-[92%] max-w-[420px] shadow-xl">
               <h3 className="text-lg font-semibold">Confirm Order</h3>
-              <p className="text-gray-700 mt-1">Cash on Delivery — Total ৳{price}</p>
+              <p className="text-gray-700 mt-1">Cash on Delivery — Total ৳{totalPrice}</p>
               <div className="flex gap-3 mt-3">
                 <button className="bg-pink-500 hover:bg-pink-600 text-white rounded-lg px-4 py-2" onClick={() => { setConfirmOpen(false); instantBuy(); }}>Confirm</button>
                 <button className="bg-gray-200 text-gray-900 rounded-lg px-4 py-2" onClick={() => setConfirmOpen(false)}>Cancel</button>
@@ -263,6 +323,7 @@ export default function ProductDetail() {
           </Motion.div>
         </Motion.div>
       )}
+    </div>
     </div>
   );
 }
