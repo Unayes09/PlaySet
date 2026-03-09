@@ -5,7 +5,7 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
-const utapi = new UTApi({ token: process.env.UPLOADTHING_TOKEN });
+const utapi = new UTApi({ token: 'eyJhcGlLZXkiOiJza19saXZlXzc4ZDliMGUxMWRiOTZlNDQ5NjllNjgxMzU4ZTNkZTk2NzFmMDAxMTMwYjY3NGEwNzdkYzJlOGQ2YjE1MWRiYTkiLCJhcHBJZCI6ImNiNjNrY2lvejEiLCJyZWdpb25zIjpbInNlYTEiXX0=' });
 
 router.post('/', requireAuth, upload.fields([
   { name: 'images', maxCount: 10 },

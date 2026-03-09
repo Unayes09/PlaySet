@@ -36,7 +36,7 @@ export default function Products() {
     return () => { window.removeEventListener('keydown', onKey) }
   }, [lightbox, closeLightbox])
 
-  const load = useCallback(async (p = page) => {
+  const load = useCallback(async (p) => {
     try {
       setLoading(true)
       setError(null)
@@ -47,9 +47,9 @@ export default function Products() {
     } finally {
       setLoading(false)
     }
-  }, [page])
+  }, [])
 
-  useEffect(() => { load(1) }, [load])
+  useEffect(() => { load(page) }, [page, load])
 
   function parseList(val) {
     return val.split(',').map((s) => s.trim()).filter(Boolean)
@@ -76,7 +76,9 @@ export default function Products() {
         const fd = new FormData()
         imageFiles.forEach((f) => fd.append('images', f))
         videoFiles.forEach((f) => fd.append('videos', f))
+        console.log('Sending upload request with FormData:', Array.from(fd.keys()))
         const res = await apiUpload('/api/uploads', fd)
+        console.log('Upload response received:', res)
         uploaded = res || uploaded
       }
       const body = {
@@ -124,11 +126,14 @@ export default function Products() {
     try {
       setEditSaving(true)
       let uploaded = { imageUrls: [], videoUrls: [] }
+      console.log('Edit Save: checking files...', { imageCount: editImageFiles.length, videoCount: editVideoFiles.length })
       if ((editImageFiles && editImageFiles.length) || (editVideoFiles && editVideoFiles.length)) {
         const fd = new FormData()
         editImageFiles.forEach((f) => fd.append('images', f))
         editVideoFiles.forEach((f) => fd.append('videos', f))
+        console.log('Edit Save: sending upload request to /api/uploads...')
         const res = await apiUpload('/api/uploads', fd)
+        console.log('Edit Save: upload result:', res)
         uploaded = res || uploaded
       }
       const body = {
@@ -143,6 +148,7 @@ export default function Products() {
         isFeatured: !!editForm.isFeatured,
         category: editForm.category,
       }
+      console.log(body)
       await apiPut(`/api/products/${id}`, body)
       setEditingId(null)
       setEditModalOpen(false)
@@ -297,9 +303,9 @@ export default function Products() {
             </table>
           </div>
           <div className="flex items-center gap-2 mt-3">
-            <button disabled={page <= 1} onClick={() => { const np = page - 1; setPage(np); load(np) }} className="px-3 py-2 rounded-md bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:opacity-50">Prev</button>
+            <button disabled={page <= 1} onClick={() => { const newPage = page - 1; setPage(newPage); load(newPage); }} className="px-3 py-2 rounded-md bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:opacity-50">Prev</button>
             <span>Page {page} / {data.totalPages}</span>
-            <button disabled={page >= data.totalPages} onClick={() => { const np = page + 1; setPage(np); load(np) }} className="px-3 py-2 rounded-md bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:opacity-50">Next</button>
+            <button disabled={page >= data.totalPages} onClick={() => { const newPage = page + 1; setPage(newPage); load(newPage); }} className="px-3 py-2 rounded-md bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:opacity-50">Next</button>
           </div>
 
           {editModalOpen && (
